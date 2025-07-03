@@ -10,15 +10,18 @@ import decorator.SpaDecorator;
 import room.BaseRoom;
 import room.RoomInfo;
 import room.SingleRoom;
+import services.BillService;
 
 public class RoomConsoleApp {
     private static final List<RoomInfo> rooms = new ArrayList<>();
+    private static final BillService billService = new BillService();
 
     public static void start(Scanner scanner) {
         while (true) {
             System.out.println("===== QUẢN LÝ PHÒNG (CONSOLE) =====");
             System.out.println("1. Tạo phòng mới");
             System.out.println("2. Hiển thị danh sách phòng");
+            System.out.println("3. Hiển thị danh sách hóa đơn");
             System.out.println("0. Quay lại");
             System.out.print("Chọn chức năng: ");
             int choice = Integer.parseInt(scanner.nextLine());
@@ -71,8 +74,20 @@ public class RoomConsoleApp {
                     }
                     boolean success = paymentStrategy.pay(totalAmount);
                     if (success) {
-                        rooms.add(new RoomInfo(room, true));
+                        RoomInfo roomInfo = new RoomInfo(room, true);
+                        rooms.add(roomInfo);
                         System.out.println("Thanh toán thành công!");
+
+                        // Tạo hóa đơn qua BillService
+                        String paymentMethod;
+                        switch (paymentChoice) {
+                            case 1: paymentMethod = "Tiền mặt"; break;
+                            case 2: paymentMethod = "Thẻ tín dụng"; break;
+                            case 3: paymentMethod = "Chuyển khoản"; break;
+                            default: paymentMethod = "Tiền mặt";
+                        }
+                        var bill = billService.createBill(roomInfo, totalAmount, paymentMethod);
+                        System.out.println("Đã tạo hóa đơn: " + bill.getBillId());
                     } else {
                         System.out.println("Thanh toán thất bại. Vui lòng thử lại.");
                     }
@@ -90,6 +105,18 @@ public class RoomConsoleApp {
                                 desc += " [ĐÃ THANH TOÁN]";
                             }
                             System.out.println((i + 1) + ". " + desc);
+                        }
+                    }
+                    System.out.println();
+                    break;
+                case 3:
+                    System.out.println("===== DANH SÁCH HÓA ĐƠN =====");
+                    var allBills = billService.getAllBills();
+                    if (allBills.isEmpty()) {
+                        System.out.println("Chưa có hóa đơn nào.");
+                    } else {
+                        for (var bill : allBills) {
+                            System.out.println(bill);
                         }
                     }
                     System.out.println();
