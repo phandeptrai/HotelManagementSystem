@@ -2,12 +2,15 @@ package main;
 
 import java.util.Scanner;
 
-import enums.RoomType;
-import services.RoomTypeManager;
-import command.RoomTypeCommand;
+import command.AddServiceCommand;
 import command.EditRoomTypeCommand;
 import command.RemoveRoomTypeCommand;
+import command.RoomTypeCommand;
 import command.RoomTypeInvoker;
+import enums.RoomType;
+import model.room.BaseRoom;
+import model.room.SingleRoom;
+import services.RoomTypeManager;
 
 public class Main {
 	public static void main(String[] args) {
@@ -20,6 +23,8 @@ public class Main {
 			System.out.println("1. Xem danh sách loại phòng");
 			System.out.println("2. Sửa tên hiển thị loại phòng");
 			System.out.println("3. Xóa loại phòng");
+			System.out.println("4. Thêm dịch vụ cho phòng (BREAKFAST/LAUNDRY/SPA)");
+			System.out.println("5. Quản lý phòng chi tiết");
 			System.out.println("0. Thoát");
 			System.out.print("Chọn chức năng: ");
 			int choice = Integer.parseInt(scanner.nextLine());
@@ -48,6 +53,21 @@ public class Main {
 				RoomTypeCommand removeCommand = new RemoveRoomTypeCommand(roomTypeManager, typeRemove);
 				invoker.setCommand(removeCommand);
 				invoker.run();
+				break;
+			case 4:
+				System.out.print("Nhập số phòng: ");
+				String roomNumber = scanner.nextLine().trim();
+				BaseRoom room = new SingleRoom(roomNumber);
+				System.out.print("Nhập dịch vụ muốn thêm (BREAKFAST/LAUNDRY/SPA): ");
+				String service = scanner.nextLine().trim().toUpperCase();
+				AddServiceCommand addServiceCmd = new AddServiceCommand(room, service);
+				invoker.setCommand(addServiceCmd);
+				invoker.run();
+				BaseRoom decoratedRoom = addServiceCmd.getDecoratedRoom();
+				System.out.println("Đã thêm dịch vụ cho phòng. Thông tin phòng sau khi thêm dịch vụ: " + decoratedRoom.getDescription());
+				break;
+			case 5:
+				RoomConsoleApp.start(scanner);
 				break;
 			default:
 				System.out.println("Chức năng không hợp lệ!");
