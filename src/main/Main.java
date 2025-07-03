@@ -8,8 +8,8 @@ import command.RemoveRoomTypeCommand;
 import command.RoomTypeCommand;
 import command.RoomTypeInvoker;
 import enums.RoomType;
-import model.room.BaseRoom;
-import model.room.SingleRoom;
+import room.BaseRoom;
+import room.SingleRoom;
 import services.RoomTypeManager;
 
 public class Main {

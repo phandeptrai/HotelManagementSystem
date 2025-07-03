@@ -1,4 +1,4 @@
-package model.room;
+package room;
 
 import enums.RoomType;
 
@@ -64,4 +64,6 @@ public abstract class BaseRoom {
 	public void checkOut() {
 		this.available = true;
 	}
+
+	public abstract double getCost();
 }

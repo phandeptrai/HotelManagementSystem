@@ -1,6 +1,6 @@
-package model.room.decorator;
+package decorator;
 
-import model.room.BaseRoom;
+import room.BaseRoom;
 
 /**
  * Concrete Decorator: Thêm dịch vụ spa cho phòng.
@@ -16,5 +16,9 @@ public class SpaDecorator extends RoomDecorator {
     @Override
     public String getDescription() {
         return super.getDescription() + ", kèm dịch vụ spa";
+    }
+    @Override
+    public double getCost() {
+        return super.getCost() + 100000;
     }
 } 

@@ -1,6 +1,6 @@
-package model.room.decorator;
+package decorator;
 
-import model.room.BaseRoom;
+import room.BaseRoom;
 
 /**
  * Concrete Decorator: Thêm dịch vụ giặt là cho phòng.
@@ -16,5 +16,9 @@ public class LaundryDecorator extends RoomDecorator {
     @Override
     public String getDescription() {
         return super.getDescription() + ", kèm dịch vụ giặt là";
+    }
+    @Override
+    public double getCost() {
+        return super.getCost() + 30000;
     }
 } 

@@ -1,9 +1,9 @@
 package command;
 
-import model.room.BaseRoom;
-import model.room.decorator.BreakfastDecorator;
-import model.room.decorator.LaundryDecorator;
-import model.room.decorator.SpaDecorator;
+import decorator.BreakfastDecorator;
+import decorator.LaundryDecorator;
+import decorator.SpaDecorator;
+import room.BaseRoom;
 
 public class AddServiceCommand implements RoomTypeCommand {
     private BaseRoom room;

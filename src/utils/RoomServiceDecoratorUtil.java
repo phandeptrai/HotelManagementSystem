@@ -1,11 +1,13 @@
 package utils;
 
-import model.room.BaseRoom;
 import enums.ServiceType;
-import model.room.decorator.BreakfastDecorator;
-import model.room.decorator.SpaDecorator;
-import model.room.decorator.LaundryDecorator;
+import room.BaseRoom;
+
 import java.util.List;
+
+import decorator.BreakfastDecorator;
+import decorator.LaundryDecorator;
+import decorator.SpaDecorator;
 
 public class RoomServiceDecoratorUtil {
     public static BaseRoom decorate(BaseRoom room, List<ServiceType> services) {

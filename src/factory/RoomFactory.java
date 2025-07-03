@@ -2,10 +2,10 @@ package factory;
 
 import enums.RoomType;
 import enums.ServiceType;
-import model.room.BaseRoom;
-import model.room.DoubleRoom;
-import model.room.SingleRoom;
-import model.room.SuiteRoom;
+import room.BaseRoom;
+import room.DoubleRoom;
+import room.SingleRoom;
+import room.SuiteRoom;
 import utils.RoomServiceDecoratorUtil;
 import java.util.List;
 

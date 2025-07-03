@@ -3,14 +3,16 @@ package main;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import model.room.BaseRoom;
-import model.room.SingleRoom;
-import model.room.decorator.BreakfastDecorator;
-import model.room.decorator.LaundryDecorator;
-import model.room.decorator.SpaDecorator;
+
+import decorator.BreakfastDecorator;
+import decorator.LaundryDecorator;
+import decorator.SpaDecorator;
+import room.BaseRoom;
+import room.RoomInfo;
+import room.SingleRoom;
 
 public class RoomConsoleApp {
-    private static final List<BaseRoom> rooms = new ArrayList<>();
+    private static final List<RoomInfo> rooms = new ArrayList<>();
 
     public static void start(Scanner scanner) {
         while (true) {
@@ -42,8 +44,39 @@ public class RoomConsoleApp {
                         room = new SpaDecorator(room);
                     }
 
-                    rooms.add(room);
-                    System.out.println("Đã tạo phòng thành công!\n");
+                    // Hiển thị tổng tiền và thanh toán
+                    double totalAmount = room.getCost();
+                    System.out.println("Tổng tiền phòng: " + totalAmount + " VND");
+                    System.out.println("Chọn phương thức thanh toán:");
+                    System.out.println("1. Tiền mặt");
+                    System.out.println("2. Thẻ tín dụng");
+                    System.out.println("3. Chuyển khoản");
+                    System.out.print("Lựa chọn: ");
+                    int paymentChoice = Integer.parseInt(scanner.nextLine());
+
+                    services.strategy.PaymentStrategy paymentStrategy;
+                    switch (paymentChoice) {
+                        case 1:
+                            paymentStrategy = new services.strategy.CashPayment();
+                            break;
+                        case 2:
+                            paymentStrategy = new services.strategy.CreditCardPayment();
+                            break;
+                        case 3:
+                            paymentStrategy = new services.strategy.BankTransferPayment();
+                            break;
+                        default:
+                            System.out.println("Lựa chọn không hợp lệ, mặc định thanh toán tiền mặt.");
+                            paymentStrategy = new services.strategy.CashPayment();
+                    }
+                    boolean success = paymentStrategy.pay(totalAmount);
+                    if (success) {
+                        rooms.add(new RoomInfo(room, true));
+                        System.out.println("Thanh toán thành công!");
+                    } else {
+                        System.out.println("Thanh toán thất bại. Vui lòng thử lại.");
+                    }
+                    System.out.println();
                     break;
                 case 2:
                     System.out.println("===== DANH SÁCH PHÒNG =====");
@@ -51,7 +84,12 @@ public class RoomConsoleApp {
                         System.out.println("Chưa có phòng nào.");
                     } else {
                         for (int i = 0; i < rooms.size(); i++) {
-                            System.out.println((i + 1) + ". " + rooms.get(i).getDescription());
+                            RoomInfo info = rooms.get(i);
+                            String desc = info.getRoom().getDescription();
+                            if (info.isPaid()) {
+                                desc += " [ĐÃ THANH TOÁN]";
+                            }
+                            System.out.println((i + 1) + ". " + desc);
                         }
                     }
                     System.out.println();

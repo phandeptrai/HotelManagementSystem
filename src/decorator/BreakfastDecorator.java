@@ -1,6 +1,6 @@
-package model.room.decorator;
+package decorator;
 
-import model.room.BaseRoom;
+import room.BaseRoom;
 
 /**
  * Concrete Decorator: Thêm dịch vụ bữa sáng cho phòng.
@@ -16,5 +16,9 @@ public class BreakfastDecorator extends RoomDecorator {
     @Override
     public String getDescription() {
         return super.getDescription() + ", kèm bữa sáng";
+    }
+    @Override
+    public double getCost() {
+        return super.getCost() + 50000;
     }
 } 

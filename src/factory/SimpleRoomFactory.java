@@ -1,8 +1,8 @@
 package factory;
 
-import model.room.BaseRoom;
-import model.room.DoubleRoom;
-import model.room.SingleRoom;
+import room.BaseRoom;
+import room.DoubleRoom;
+import room.SingleRoom;
 
 /**
  * Factory cụ thể để tạo loại phòng đơn giản (Standard).

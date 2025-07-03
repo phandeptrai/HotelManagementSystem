@@ -1,7 +1,7 @@
-package model.room.decorator;
+package decorator;
 
 import enums.RoomType;
-import model.room.BaseRoom;
+import room.BaseRoom;
 
 /**
  * Abstract Decorator cho Room (Thêm loại phòng có dịch vụ)
@@ -52,5 +52,10 @@ public abstract class RoomDecorator extends BaseRoom {
 	@Override
 	public void checkOut() {
 		decoratedRoom.checkOut();
+	}
+
+	@Override
+	public double getCost() {
+		return decoratedRoom.getCost();
 	}
 }

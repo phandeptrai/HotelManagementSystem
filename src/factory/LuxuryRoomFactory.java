@@ -1,7 +1,7 @@
 package factory;
 
-import model.room.BaseRoom;
-import model.room.SuiteRoom;
+import room.BaseRoom;
+import room.SuiteRoom;
 
 /**
  * Factory cụ thể để tạo loại phòng sang trọng (Luxury).

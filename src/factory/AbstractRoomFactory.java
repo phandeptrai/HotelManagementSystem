@@ -1,6 +1,6 @@
 package factory;
 
-import model.room.BaseRoom;
+import room.BaseRoom;
 
 //=================================================================================
 //DESIGN PATTERN: ABSTRACT FACTORY
