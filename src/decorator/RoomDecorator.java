@@ -1,6 +1,7 @@
 package decorator;
 
 import enums.RoomType;
+import enums.RoomStatus;
 import room.BaseRoom;
 
 /**
@@ -14,7 +15,7 @@ public abstract class RoomDecorator extends BaseRoom {
 			decoratedRoom.getRoomNumber(),
 			decoratedRoom.getRoomType(),
 			decoratedRoom.getPrice(),
-			decoratedRoom.isAvailable()
+			decoratedRoom.getStatus()
 		);
 		this.decoratedRoom = decoratedRoom;
 	}
@@ -37,6 +38,11 @@ public abstract class RoomDecorator extends BaseRoom {
 	@Override
 	public String getDescription() {
 		return decoratedRoom.getDescription();
+	}
+
+	@Override
+	public RoomStatus getStatus() {
+		return decoratedRoom.getStatus();
 	}
 
 	@Override

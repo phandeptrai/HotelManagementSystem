@@ -1,27 +1,29 @@
 package main;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
-
 import decorator.BreakfastDecorator;
 import decorator.LaundryDecorator;
 import decorator.SpaDecorator;
 import room.BaseRoom;
-import room.RoomInfo;
 import room.SingleRoom;
 import services.BillService;
+import services.RoomManager;
+import services.RoomMockData;
+import enums.RoomType;
+import enums.RoomStatus;
 
 public class RoomConsoleApp {
-    private static final List<RoomInfo> rooms = new ArrayList<>();
+    private static final RoomManager roomManager = RoomMockData.createMockRoomManager();
     private static final BillService billService = new BillService();
 
     public static void start(Scanner scanner) {
         while (true) {
             System.out.println("===== QUẢN LÝ PHÒNG (CONSOLE) =====");
-            System.out.println("1. Tạo phòng mới");
+            System.out.println("1. Đặt phòng");
             System.out.println("2. Hiển thị danh sách phòng");
-            System.out.println("3. Hiển thị danh sách hóa đơn");
+            System.out.println("3. Hiển thị danh sách phòng trống");
+            System.out.println("4. ...");
+            System.out.println("5. Hiển thị danh sách hóa đơn");
             System.out.println("0. Quay lại");
             System.out.print("Chọn chức năng: ");
             int choice = Integer.parseInt(scanner.nextLine());
@@ -30,10 +32,21 @@ public class RoomConsoleApp {
 
             switch (choice) {
                 case 1:
-                    System.out.print("Nhập số phòng: ");
-                    String roomNumber = scanner.nextLine().trim();
-                    BaseRoom room = new SingleRoom(roomNumber);
-
+                    // Đặt phòng
+                    System.out.println("Chọn loại phòng muốn đặt: 1. SINGLE 2. DOUBLE 3. SUITE");
+                    int typeChoice = Integer.parseInt(scanner.nextLine());
+                    RoomType type = RoomType.SINGLE;
+                    if (typeChoice == 2) type = RoomType.DOUBLE;
+                    else if (typeChoice == 3) type = RoomType.SUITE;
+                    if (roomManager.countAvailableRooms(type) == 0) {
+                        System.out.println("Không còn phòng trống loại này!");
+                        break;
+                    }
+                    BaseRoom room = roomManager.bookRoom(type);
+                    if (room == null) {
+                        System.out.println("Đặt phòng thất bại!");
+                        break;
+                    }
                     System.out.print("Thêm dịch vụ ăn sáng? (y/n): ");
                     if (scanner.nextLine().trim().equalsIgnoreCase("y")) {
                         room = new BreakfastDecorator(room);
@@ -46,8 +59,6 @@ public class RoomConsoleApp {
                     if (scanner.nextLine().trim().equalsIgnoreCase("y")) {
                         room = new SpaDecorator(room);
                     }
-
-                    // Hiển thị tổng tiền và thanh toán
                     double totalAmount = room.getCost();
                     System.out.println("Tổng tiền phòng: " + totalAmount + " VND");
                     System.out.println("Chọn phương thức thanh toán:");
@@ -56,7 +67,6 @@ public class RoomConsoleApp {
                     System.out.println("3. Chuyển khoản");
                     System.out.print("Lựa chọn: ");
                     int paymentChoice = Integer.parseInt(scanner.nextLine());
-
                     services.strategy.PaymentStrategy paymentStrategy;
                     switch (paymentChoice) {
                         case 1:
@@ -74,11 +84,7 @@ public class RoomConsoleApp {
                     }
                     boolean success = paymentStrategy.pay(totalAmount);
                     if (success) {
-                        RoomInfo roomInfo = new RoomInfo(room, true);
-                        rooms.add(roomInfo);
-                        System.out.println("Thanh toán thành công!");
-
-                        // Tạo hóa đơn qua BillService
+                        System.out.println("Đặt phòng thành công! Số phòng: " + room.getRoomNumber());
                         String paymentMethod;
                         switch (paymentChoice) {
                             case 1: paymentMethod = "Tiền mặt"; break;
@@ -86,30 +92,47 @@ public class RoomConsoleApp {
                             case 3: paymentMethod = "Chuyển khoản"; break;
                             default: paymentMethod = "Tiền mặt";
                         }
-                        var bill = billService.createBill(roomInfo, totalAmount, paymentMethod);
-                        System.out.println("Đã tạo hóa đơn: " + bill.getBillId());
+                        billService.createBill(new room.RoomInfo(room, true), totalAmount, paymentMethod);
                     } else {
                         System.out.println("Thanh toán thất bại. Vui lòng thử lại.");
+                        room.checkOut(); // Trả lại trạng thái phòng nếu thanh toán fail
                     }
                     System.out.println();
                     break;
                 case 2:
                     System.out.println("===== DANH SÁCH PHÒNG =====");
-                    if (rooms.isEmpty()) {
+                    if (roomManager.getRooms().isEmpty()) {
                         System.out.println("Chưa có phòng nào.");
                     } else {
-                        for (int i = 0; i < rooms.size(); i++) {
-                            RoomInfo info = rooms.get(i);
-                            String desc = info.getRoom().getDescription();
-                            if (info.isPaid()) {
-                                desc += " [ĐÃ THANH TOÁN]";
-                            }
-                            System.out.println((i + 1) + ". " + desc);
+                        for (BaseRoom r : roomManager.getRooms()) {
+                            String desc = r.getDescription();
+                            desc += " [" + r.getStatus() + "]";
+                            System.out.println(r.getRoomNumber() + ": " + desc);
                         }
                     }
                     System.out.println();
                     break;
                 case 3:
+                    System.out.println("===== DANH SÁCH PHÒNG TRỐNG =====");
+                    boolean hasAvailable = false;
+                    for (RoomType t : RoomType.values()) {
+                        int available = roomManager.countAvailableRooms(t);
+                        int total = roomManager.getRoomsByType(t).size();
+                        if (total > 0) {
+                            System.out.println(t + ": " + available + "/" + total + " phòng trống");
+                            if (available > 0) hasAvailable = true;
+                        }
+                    }
+                    if (!hasAvailable) {
+                        System.out.println("Không còn phòng trống.");
+                    }
+                    System.out.println();
+                    break;
+                case 4:
+                    System.out.println("Chức năng đang phát triển.");
+                    System.out.println();
+                    break;
+                case 5:
                     System.out.println("===== DANH SÁCH HÓA ĐƠN =====");
                     var allBills = billService.getAllBills();
                     if (allBills.isEmpty()) {

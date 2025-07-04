@@ -1,6 +1,7 @@
 package room;
 
 import enums.RoomType;
+import enums.RoomStatus;
 
 /**
  * Abstract Class cơ sở cho các loại phòng cụ thể.
@@ -9,13 +10,13 @@ public abstract class BaseRoom {
 	protected String roomNumber;
 	protected RoomType roomType;
 	protected double price;
-	protected boolean available = true;
+	protected RoomStatus status = RoomStatus.AVAILABLE;
 
-	public BaseRoom(String roomNumber, RoomType roomType, double price, boolean available) {
+	public BaseRoom(String roomNumber, RoomType roomType, double price, RoomStatus status) {
 		this.roomNumber = roomNumber;
 		this.roomType = roomType;
 		this.price = price;
-		this.available = available;
+		this.status = status;
 	}
 
 	// Getter
@@ -35,8 +36,12 @@ public abstract class BaseRoom {
 		return roomType + " #" + roomNumber;
 	}
 
+	public RoomStatus getStatus() {
+		return status;
+	}
+
 	public boolean isAvailable() {
-		return available;
+		return status == RoomStatus.AVAILABLE;
 	}
 
 	// Setter
@@ -52,17 +57,21 @@ public abstract class BaseRoom {
 		this.price = price;
 	}
 
-	public void setAvailable(boolean available) {
-		this.available = available;
+	public void setStatus(RoomStatus status) {
+		this.status = status;
 	}
 
 	// Logic đặt phòng/trả phòng
 	public void bookRoom() {
-		this.available = false;
+		this.status = RoomStatus.BOOKED;
 	}
 
 	public void checkOut() {
-		this.available = true;
+		this.status = RoomStatus.AVAILABLE;
+	}
+
+	public void setMaintenance() {
+		this.status = RoomStatus.MAINTENANCE;
 	}
 
 	public abstract double getCost();

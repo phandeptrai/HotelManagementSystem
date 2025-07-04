@@ -1,73 +1,36 @@
 package main;
 
 import java.util.Scanner;
-
-import command.AddServiceCommand;
-import command.EditRoomTypeCommand;
-import command.RemoveRoomTypeCommand;
-import command.RoomTypeCommand;
-import command.RoomTypeInvoker;
-import enums.RoomType;
-import room.BaseRoom;
-import room.SingleRoom;
 import services.RoomTypeManager;
+import services.BillService;
 
 public class Main {
 	public static void main(String[] args) {
-		RoomTypeManager roomTypeManager = new RoomTypeManager();
-		RoomTypeInvoker invoker = new RoomTypeInvoker();
 		Scanner scanner = new Scanner(System.in);
-
+		RoomTypeManager roomTypeManager = new RoomTypeManager();
+		BillService billService = new BillService();
 		while (true) {
-			System.out.println("===== QUẢN LÝ LOẠI PHÒNG =====");
-			System.out.println("1. Xem danh sách loại phòng");
-			System.out.println("2. Sửa tên hiển thị loại phòng");
-			System.out.println("3. Xóa loại phòng");
-			System.out.println("4. Thêm dịch vụ cho phòng (BREAKFAST/LAUNDRY/SPA)");
-			System.out.println("5. Quản lý phòng chi tiết");
+			System.out.println("===== MENU CHÍNH =====");
+			System.out.println("1. Quản lý hóa đơn");
+			System.out.println("2. Quản lý phòng");
+			System.out.println("3. Quản lý loại phòng");
+			System.out.println("4. Quản lý dịch vụ");
 			System.out.println("0. Thoát");
 			System.out.print("Chọn chức năng: ");
 			int choice = Integer.parseInt(scanner.nextLine());
-
-			if (choice == 0)
-				break;
-
+			if (choice == 0) break;
 			switch (choice) {
 			case 1:
-				roomTypeManager.showRoomTypes();
+				manageBills(scanner, billService);
 				break;
 			case 2:
-				roomTypeManager.showRoomTypes();
-				System.out.print("Nhập loại phòng muốn sửa (ví dụ: SINGLE): ");
-				RoomType typeEdit = RoomType.valueOf(scanner.nextLine().trim().toUpperCase());
-				System.out.print("Nhập tên hiển thị mới: ");
-				String newName = scanner.nextLine();
-				RoomTypeCommand editCommand = new EditRoomTypeCommand(roomTypeManager, typeEdit, newName);
-				invoker.setCommand(editCommand);
-				invoker.run();
+				manageRooms(scanner);
 				break;
 			case 3:
-				roomTypeManager.showRoomTypes();
-				System.out.print("Nhập loại phòng muốn xóa (ví dụ: SINGLE): ");
-				RoomType typeRemove = RoomType.valueOf(scanner.nextLine().trim().toUpperCase());
-				RoomTypeCommand removeCommand = new RemoveRoomTypeCommand(roomTypeManager, typeRemove);
-				invoker.setCommand(removeCommand);
-				invoker.run();
+				manageRoomTypes(scanner, roomTypeManager);
 				break;
 			case 4:
-				System.out.print("Nhập số phòng: ");
-				String roomNumber = scanner.nextLine().trim();
-				BaseRoom room = new SingleRoom(roomNumber);
-				System.out.print("Nhập dịch vụ muốn thêm (BREAKFAST/LAUNDRY/SPA): ");
-				String service = scanner.nextLine().trim().toUpperCase();
-				AddServiceCommand addServiceCmd = new AddServiceCommand(room, service);
-				invoker.setCommand(addServiceCmd);
-				invoker.run();
-				BaseRoom decoratedRoom = addServiceCmd.getDecoratedRoom();
-				System.out.println("Đã thêm dịch vụ cho phòng. Thông tin phòng sau khi thêm dịch vụ: " + decoratedRoom.getDescription());
-				break;
-			case 5:
-				RoomConsoleApp.start(scanner);
+				manageServices(scanner);
 				break;
 			default:
 				System.out.println("Chức năng không hợp lệ!");
@@ -75,5 +38,78 @@ public class Main {
 			System.out.println();
 		}
 		scanner.close();
+	}
+
+	private static void manageBills(Scanner scanner, BillService billService) {
+		// Khung menu quản lý hóa đơn
+		System.out.println("===== QUẢN LÝ HÓA ĐƠN =====");
+		System.out.println("1. Hiển thị danh sách hóa đơn");
+		System.out.println("0. Quay lại");
+		System.out.print("Chọn chức năng: ");
+		int choice = Integer.parseInt(scanner.nextLine());
+		if (choice == 1) {
+			var allBills = billService.getAllBills();
+			if (allBills.isEmpty()) {
+				System.out.println("Chưa có hóa đơn nào.");
+			} else {
+				for (var bill : allBills) {
+					System.out.println(bill);
+				}
+			}
+		}
+	}
+
+	private static void manageRooms(Scanner scanner) {
+		// Khung menu quản lý phòng
+		RoomConsoleApp.start(scanner);
+	}
+
+	private static void manageRoomTypes(Scanner scanner, RoomTypeManager roomTypeManager) {
+		// Khung menu quản lý loại phòng (có thể dùng lại logic cũ hoặc tách ra)
+		while (true) {
+			System.out.println("===== QUẢN LÝ LOẠI PHÒNG =====");
+			System.out.println("1. Xem danh sách loại phòng");
+			System.out.println("2. Sửa tên hiển thị loại phòng");
+			System.out.println("3. Xóa loại phòng");
+			System.out.println("0. Quay lại");
+			System.out.print("Chọn chức năng: ");
+			int choice = Integer.parseInt(scanner.nextLine());
+			if (choice == 0) break;
+			switch (choice) {
+			case 1:
+				roomTypeManager.showRoomTypes();
+				break;
+			case 2:
+				roomTypeManager.showRoomTypes();
+				System.out.print("Nhập loại phòng muốn sửa (ví dụ: SINGLE): ");
+				var typeEdit = enums.RoomType.valueOf(scanner.nextLine().trim().toUpperCase());
+				System.out.print("Nhập tên hiển thị mới: ");
+				String newName = scanner.nextLine();
+				roomTypeManager.editRoomTypeName(typeEdit, newName);
+				System.out.println("Đã sửa tên hiển thị.");
+				break;
+			case 3:
+				roomTypeManager.showRoomTypes();
+				System.out.print("Nhập loại phòng muốn xóa (ví dụ: SINGLE): ");
+				var typeRemove = enums.RoomType.valueOf(scanner.nextLine().trim().toUpperCase());
+				roomTypeManager.removeRoomType(typeRemove);
+				System.out.println("Đã xóa loại phòng.");
+				break;
+			default:
+				System.out.println("Chức năng không hợp lệ!");
+			}
+		}
+	}
+
+	private static void manageServices(Scanner scanner) {
+		// Khung menu quản lý dịch vụ (bổ sung logic sau)
+		System.out.println("===== QUẢN LÝ DỊCH VỤ =====");
+		System.out.println("1. Hiển thị danh sách dịch vụ");
+		System.out.println("0. Quay lại");
+		System.out.print("Chọn chức năng: ");
+		int choice = Integer.parseInt(scanner.nextLine());
+		if (choice == 1) {
+			System.out.println("- BREAKFAST\n- LAUNDRY\n- SPA");
+		}
 	}
 }
