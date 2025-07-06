@@ -142,6 +142,18 @@ public class BookingManager {
             default: return new CashPayment();
         }
     }
+    
+    // Tạo hóa đơn sử dụng Builder Pattern thông qua BillService
+    public Bill createBillWithBuilder(Room room, double amount, String paymentMethod) {
+        RoomInfo roomInfo = new RoomInfo(room, true);
+        
+        // Sử dụng BillService có sẵn để tạo Bill (BillService đã sử dụng Builder bên trong)
+        BillService billService = new BillService();
+        Bill bill = billService.createBill(roomInfo, amount, paymentMethod);
+        
+        System.out.println("✅ Đã tạo hóa đơn với Builder thông qua BillService: " + bill.getBillId());
+        return bill;
+    }
 
     // Lấy danh sách booking hiện tại
     public List<UserHistory> getBookings() {

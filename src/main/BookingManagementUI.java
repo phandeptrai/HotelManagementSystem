@@ -421,10 +421,8 @@ public class BookingManagementUI {
         if (paymentStrategy.pay(totalAmount)) {
             System.out.println("✅ Thanh toán thành công!");
             
-            // Tạo hóa đơn
-            RoomInfo roomInfo = new RoomInfo(room, true);
-            BillService billService = new BillService();
-            billService.createBill(roomInfo, totalAmount, paymentStrategy.getPaymentMethodName());
+            // Tạo hóa đơn sử dụng Builder Pattern trực tiếp từ BookingManager
+            Bill bill = bookingManager.createBillWithBuilder(room, totalAmount, paymentStrategy.getPaymentMethodName());
             
             return true;
         } else {

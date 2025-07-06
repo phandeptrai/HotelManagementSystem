@@ -27,6 +27,35 @@ public class BillService {
     public List<Bill> getAllBills() {
         return bills;
     }
+    
+    // Thêm Bill vào danh sách
+    public void addBill(Bill bill) {
+        bills.add(bill);
+        System.out.println("✅ Đã thêm hóa đơn vào danh sách: " + bill.getBillId());
+    }
+    
+    // Tạo Bill trực tiếp với Builder Pattern (không lưu vào danh sách)
+    public Bill createBillWithBuilder(RoomInfo roomInfo, double totalAmount, String paymentMethod) {
+        Bill bill = new BillBuilder()
+            .setBillId(UUID.randomUUID().toString())
+            .setRoomInfo(roomInfo)
+            .setTotalAmount(totalAmount)
+            .setPaymentMethod(paymentMethod)
+            .setPaid(true)
+            .setPaymentTime(LocalDateTime.now())
+            .build();
+        
+        System.out.println("✅ Đã tạo hóa đơn với Builder: " + bill.getBillId());
+        return bill;
+    }
+    
+    // Tạo Bill với Builder và lưu vào danh sách
+    public Bill createAndSaveBillWithBuilder(RoomInfo roomInfo, double totalAmount, String paymentMethod) {
+        Bill bill = createBillWithBuilder(roomInfo, totalAmount, paymentMethod);
+        bills.add(bill);
+        System.out.println("✅ Đã lưu hóa đơn vào danh sách");
+        return bill;
+    }
 
     public void displayAllBills() {
         if (bills.isEmpty()) {

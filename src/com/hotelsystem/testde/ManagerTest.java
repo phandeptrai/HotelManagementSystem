@@ -4,9 +4,11 @@ import com.hotelsystem.user.User;
 import com.hotelsystem.user.UserHistory;
 import com.hotelsystem.user.UserManager;
 import com.hotelsystem.services.*;
+import com.hotelsystem.services.strategy.*;
 import com.hotelsystem.room.Room;
 import com.hotelsystem.room.RoomInfo;
 import com.hotelsystem.builder.Bill;
+import com.hotelsystem.builder.BillBuilder;
 import com.hotelsystem.enums.RoomType;
 import com.hotelsystem.enums.RoomStatus;
 import java.time.LocalDateTime;
@@ -30,6 +32,15 @@ public class ManagerTest {
         
         // Test BillService
         testBillService();
+        
+        // Test BookingManager với Builder Pattern
+        testBookingManagerWithBuilder();
+        
+        // Test tạo Bill trực tiếp với Builder
+        testDirectBuilderUsage();
+        
+        // Test BillBuilderUtil
+        testBillBuilderUtil();
         
         System.out.println("\n=== HOÀN THÀNH KIỂM TRA ===");
     }
@@ -171,7 +182,7 @@ public class ManagerTest {
     }
     
     private static void testBillService() {
-        System.out.println("\n--- Test BillService ---");
+        System.out.println("\n--- Test BillService với Builder Pattern ---");
         BillService billService = new BillService();
         
         // Tạo RoomInfo mock với room thật
@@ -179,7 +190,7 @@ public class ManagerTest {
         Room testRoom = roomManager.getRooms().get(0);
         RoomInfo mockRoomInfo = new RoomInfo(testRoom, true);
         
-        // Test createBill
+        // Test createBill (sử dụng Builder bên trong)
         Bill bill1 = billService.createBill(mockRoomInfo, 500000, "Tiền mặt");
         Bill bill2 = billService.createBill(mockRoomInfo, 800000, "Thẻ tín dụng");
         
@@ -195,5 +206,114 @@ public class ManagerTest {
                              ", Số tiền: " + bill.getTotalAmount() + 
                              ", Phương thức: " + bill.getPaymentMethod());
         }
+    }
+    
+    private static void testBookingManagerWithBuilder() {
+        System.out.println("\n--- Test BookingManager với Builder Pattern ---");
+        BookingManager bookingManager = BookingManager.getInstance();
+        RoomManager roomManager = RoomMockData.createMockRoomManager();
+        Room testRoom = roomManager.getRooms().get(0);
+        
+        // Test tạo Bill trực tiếp với Builder
+        Bill bill1 = bookingManager.createBillWithBuilder(testRoom, 500000, "Tiền mặt");
+        Bill bill2 = bookingManager.createBillWithBuilder(testRoom, 800000, "Thẻ tín dụng");
+        
+        System.out.println("Đã tạo hóa đơn với Builder 1: " + bill1.getBillId());
+        System.out.println("Đã tạo hóa đơn với Builder 2: " + bill2.getBillId());
+        
+        // Test checkout với payment
+        UserManager userManager = UserMockData.createMockUserManager();
+        User testUser = userManager.getUser(1);
+        
+        if (testUser != null) {
+            // Đặt phòng trước
+            bookingManager.bookRoom(testRoom, testUser);
+            
+            // Test checkout với payment
+            PaymentStrategy cashPayment = new CashPayment();
+            boolean checkoutSuccess = bookingManager.checkOutWithPayment(testRoom, testUser, 500000, cashPayment);
+            System.out.println("Checkout với payment thành công: " + checkoutSuccess);
+        }
+    }
+    
+    private static void testDirectBuilderUsage() {
+        System.out.println("\n--- Test tạo Bill trực tiếp với Builder ---");
+        
+        // Tạo RoomInfo mock
+        RoomManager roomManager = RoomMockData.createMockRoomManager();
+        Room testRoom = roomManager.getRooms().get(0);
+        RoomInfo mockRoomInfo = new RoomInfo(testRoom, true);
+        
+        // Test 1: Tạo Bill trực tiếp với BillBuilder
+        System.out.println("1. Tạo Bill trực tiếp với BillBuilder:");
+        Bill directBill = new BillBuilder()
+            .setBillId(java.util.UUID.randomUUID().toString())
+            .setRoomInfo(mockRoomInfo)
+            .setTotalAmount(600000)
+            .setPaymentMethod("Chuyển khoản")
+            .setPaid(false)  // Chưa thanh toán
+            .setPaymentTime(null)  // Chưa có thời gian thanh toán
+            .build();
+        
+        System.out.println("   - Bill ID: " + directBill.getBillId());
+        System.out.println("   - Số tiền: " + String.format("%,.0f", directBill.getTotalAmount()) + " VND");
+        System.out.println("   - Phương thức: " + directBill.getPaymentMethod());
+        System.out.println("   - Đã thanh toán: " + directBill.isPaid());
+        
+        // Test 2: Tạo Bill với BillService.createBillWithBuilder
+        System.out.println("\n2. Tạo Bill với BillService.createBillWithBuilder:");
+        BillService billService = new BillService();
+        Bill serviceBill = billService.createBillWithBuilder(mockRoomInfo, 700000, "Thẻ tín dụng");
+        
+        System.out.println("   - Bill ID: " + serviceBill.getBillId());
+        System.out.println("   - Số tiền: " + String.format("%,.0f", serviceBill.getTotalAmount()) + " VND");
+        System.out.println("   - Phương thức: " + serviceBill.getPaymentMethod());
+        System.out.println("   - Đã thanh toán: " + serviceBill.isPaid());
+        
+        // Test 3: Tạo Bill với BillService.createAndSaveBillWithBuilder
+        System.out.println("\n3. Tạo Bill với BillService.createAndSaveBillWithBuilder:");
+        Bill savedBill = billService.createAndSaveBillWithBuilder(mockRoomInfo, 800000, "Tiền mặt");
+        
+        System.out.println("   - Bill ID: " + savedBill.getBillId());
+        System.out.println("   - Số tiền: " + String.format("%,.0f", savedBill.getTotalAmount()) + " VND");
+        System.out.println("   - Phương thức: " + savedBill.getPaymentMethod());
+        System.out.println("   - Tổng số hóa đơn trong BillService: " + billService.getAllBills().size());
+    }
+    
+    private static void testBillBuilderUtil() {
+        System.out.println("\n--- Test BillBuilderUtil ---");
+        
+        // Tạo RoomInfo mock
+        RoomManager roomManager = RoomMockData.createMockRoomManager();
+        Room testRoom = roomManager.getRooms().get(0);
+        RoomInfo mockRoomInfo = new RoomInfo(testRoom, true);
+        
+        // Test 1: Tạo Bill đã thanh toán
+        System.out.println("1. Tạo Bill đã thanh toán:");
+        Bill paidBill = com.hotelsystem.utils.BillBuilderUtil.createPaidBill(mockRoomInfo, 900000, "Tiền mặt");
+        System.out.println("   - Bill ID: " + paidBill.getBillId());
+        System.out.println("   - Đã thanh toán: " + paidBill.isPaid());
+        System.out.println("   - Thời gian thanh toán: " + paidBill.getPaymentTime());
+        
+        // Test 2: Tạo Bill chưa thanh toán
+        System.out.println("\n2. Tạo Bill chưa thanh toán:");
+        Bill unpaidBill = com.hotelsystem.utils.BillBuilderUtil.createUnpaidBill(mockRoomInfo, 1000000, "Thẻ tín dụng");
+        System.out.println("   - Bill ID: " + unpaidBill.getBillId());
+        System.out.println("   - Đã thanh toán: " + unpaidBill.isPaid());
+        System.out.println("   - Thời gian thanh toán: " + unpaidBill.getPaymentTime());
+        
+        // Test 3: Tạo Bill từ Room object
+        System.out.println("\n3. Tạo Bill từ Room object:");
+        Bill roomBill = com.hotelsystem.utils.BillBuilderUtil.createBillFromRoom(testRoom, 1100000, "Chuyển khoản");
+        System.out.println("   - Bill ID: " + roomBill.getBillId());
+        System.out.println("   - Phòng: " + roomBill.getRoomInfo().getRoom().getRoomNumber());
+        System.out.println("   - Số tiền: " + String.format("%,.0f", roomBill.getTotalAmount()) + " VND");
+        
+        // Test 4: Tạo Bill với ID tùy chỉnh
+        System.out.println("\n4. Tạo Bill với ID tùy chỉnh:");
+        Bill customIdBill = com.hotelsystem.utils.BillBuilderUtil.createBillWithCustomId(
+            "BILL-2024-001", mockRoomInfo, 1200000, "Tiền mặt");
+        System.out.println("   - Bill ID: " + customIdBill.getBillId());
+        System.out.println("   - Số tiền: " + String.format("%,.0f", customIdBill.getTotalAmount()) + " VND");
     }
 } 
