@@ -59,4 +59,13 @@ public class RoomTypeManager {
     public String getDisplayName(RoomType type) {
         return displayNames.get(type);
     }
+
+	public void addRoomType(RoomType type) {
+	        activeRoomTypes.add(type);
+	        if (!displayNames.containsKey(type)) {
+	            displayNames.put(type, type.name());
+	        }
+	    
+	}
+    
 } 

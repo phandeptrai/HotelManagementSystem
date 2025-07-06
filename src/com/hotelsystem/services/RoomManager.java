@@ -34,14 +34,23 @@ public class RoomManager {
             .filter(r -> r.getRoomType() == type && r.isAvailable())
             .count();
     }
-
-//    public Room bookRoom(Room room) {
-//        for (Room room : rooms) {
-//            if (room.getRoomType() == type && room.getStatus() == RoomStatus.AVAILABLE) {
-//                room.bookRoom();
-//                return room;
-//            }
-//        }
-//        return null; // Không còn phòng trống loại này
-//    }
+    
+    // Đặt phòng theo loại
+    public Room bookRoom(RoomType type) {
+        List<Room> availableRooms = getAvailableRooms(type);
+        if (!availableRooms.isEmpty()) {
+            Room room = availableRooms.get(0);
+            room.reserve(null); // Đặt phòng
+            return room;
+        }
+        return null;
+    }
+    
+    // Lấy phòng theo số phòng
+    public Room getRoomByNumber(String roomNumber) {
+        return rooms.stream()
+            .filter(r -> r.getRoomNumber().equals(roomNumber))
+            .findFirst()
+            .orElse(null);
+    }
 } 

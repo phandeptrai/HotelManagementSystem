@@ -14,7 +14,7 @@ public class UiDisplay implements Observer {
     public void update(Subject subject) {
         if (subject instanceof Room) {
         	Room room = (Room) subject;
-        	System.out.println("Phòng "+ room.getRoomNumber() +"=>" + room.getCurrentState().getStateName());
+        	System.out.println("\u001B[31mPhòng " + room.getRoomNumber() + " chuyển sang trạng thái " + room.getCurrentState().getStateName() + "\u001B[0m");
         }
     }
 }

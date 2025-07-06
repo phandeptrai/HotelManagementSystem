@@ -46,11 +46,6 @@ public abstract class RoomDecorator extends Room {
 
 
 	@Override
-	public void checkOut() {
-		decoratedRoom.checkOut();
-	}
-
-	@Override
 	public double getCost() {
 		return decoratedRoom.getCost();
 	}
