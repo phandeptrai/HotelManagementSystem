@@ -8,16 +8,18 @@ import com.hotelsystem.observer.UiDisplay;
 
 
 /**
- * Command for checking in to a room
+ * Command for starting/finishing room maintenance
  */
-public class CheckInCommand implements ReservationCommand {
+public class MaintenanceCommand implements ReservationCommand {
     private Room room;
     private User user;
     private RoomState previousState;
+    private boolean isStartMaintenance;
     
-    public CheckInCommand(Room room, User user) {
+    public MaintenanceCommand(Room room, User user, boolean isStartMaintenance) {
         this.room = room;
         this.user = user;
+        this.isStartMaintenance = isStartMaintenance;
     }
     
     @Override
@@ -25,12 +27,16 @@ public class CheckInCommand implements ReservationCommand {
         // Store previous state for undo
         previousState = room.getCurrentState();
         
-        // Observer sẽ được tự động notify khi state thay đổi
+                // Observer sẽ được tự động notify khi state thay đổi
         
-        // Execute check-in using State pattern
-        room.checkIn(user);
+        // Execute maintenance using State pattern
+        if (isStartMaintenance) {
+            room.startMaintenance();
+        } else {
+            room.finishMaintenance();
+        }
         
-        System.out.println("✅ Đã thực hiện lệnh check-in: " + getDescription());
+        System.out.println("✅ Đã thực hiện lệnh bảo trì: " + getDescription());
     }
     
     @Override
@@ -41,16 +47,13 @@ public class CheckInCommand implements ReservationCommand {
             System.out.println("🔄 Đã khôi phục trạng thái phòng về: " + previousState.getStateName());
         }
         
-        // Clear current user
-        room.setCurrentUser(null);
-        
-        System.out.println("❌ Đã hủy lệnh check-in: " + getDescription());
+        System.out.println("❌ Đã hủy lệnh bảo trì: " + getDescription());
     }
     
     @Override
     public String getDescription() {
-        return "Check-in phòng " + room.getRoomNumber() + " cho " + 
-               (user != null ? user.getName() : "Khách");
+        String action = isStartMaintenance ? "Bắt đầu bảo trì" : "Kết thúc bảo trì";
+        return action + " phòng " + room.getRoomNumber();
     }
     
     public Room getRoom() {
@@ -65,5 +68,9 @@ public class CheckInCommand implements ReservationCommand {
     @Override
     public void setUser(User user) {
         this.user = user;
+    }
+    
+    public boolean isStartMaintenance() {
+        return isStartMaintenance;
     }
 } 

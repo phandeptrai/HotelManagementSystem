@@ -6,16 +6,15 @@ import com.hotelsystem.user.User;
 import com.hotelsystem.observer.Observer;
 import com.hotelsystem.observer.UiDisplay;
 
-
 /**
- * Command for checking in to a room
+ * Command for canceling a room reservation
  */
-public class CheckInCommand implements ReservationCommand {
+public class CancelReservationCommand implements ReservationCommand {
     private Room room;
     private User user;
     private RoomState previousState;
     
-    public CheckInCommand(Room room, User user) {
+    public CancelReservationCommand(Room room, User user) {
         this.room = room;
         this.user = user;
     }
@@ -27,10 +26,10 @@ public class CheckInCommand implements ReservationCommand {
         
         // Observer sẽ được tự động notify khi state thay đổi
         
-        // Execute check-in using State pattern
-        room.checkIn(user);
+        // Execute cancel reservation using State pattern
+        room.cancelReservation(user);
         
-        System.out.println("✅ Đã thực hiện lệnh check-in: " + getDescription());
+        System.out.println("✅ Đã thực hiện lệnh hủy đặt phòng: " + getDescription());
     }
     
     @Override
@@ -41,15 +40,15 @@ public class CheckInCommand implements ReservationCommand {
             System.out.println("🔄 Đã khôi phục trạng thái phòng về: " + previousState.getStateName());
         }
         
-        // Clear current user
-        room.setCurrentUser(null);
+        // Restore current user
+        room.setCurrentUser(user);
         
-        System.out.println("❌ Đã hủy lệnh check-in: " + getDescription());
+        System.out.println("❌ Đã hủy lệnh hủy đặt phòng: " + getDescription());
     }
     
     @Override
     public String getDescription() {
-        return "Check-in phòng " + room.getRoomNumber() + " cho " + 
+        return "Hủy đặt phòng " + room.getRoomNumber() + " cho " + 
                (user != null ? user.getName() : "Khách");
     }
     

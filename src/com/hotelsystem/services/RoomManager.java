@@ -35,6 +35,12 @@ public class RoomManager {
             .count();
     }
     
+    public int countRoomsByType(RoomType type) {
+        return (int) rooms.stream()
+            .filter(r -> r.getRoomType() == type)
+            .count();
+    }
+    
     // Đặt phòng theo loại
     public Room bookRoom(RoomType type) {
         List<Room> availableRooms = getAvailableRooms(type);

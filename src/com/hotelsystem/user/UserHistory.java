@@ -8,8 +8,9 @@ import java.time.LocalDateTime;
 public class UserHistory {
 	private int userId;
     private String roomNumber;
-    private LocalDateTime checkInTime;
-    private LocalDateTime checkOutTime;
+    private LocalDateTime reservationTime; // Thời gian đặt phòng
+    private LocalDateTime checkInTime;     // Thời gian check-in
+    private LocalDateTime checkOutTime;    // Thời gian check-out
     private double totalCost;
 
     
@@ -18,9 +19,10 @@ public class UserHistory {
         this.roomNumber = roomNumber;
     }
     
-    public UserHistory(int id, String roomNumber, LocalDateTime checkin, LocalDateTime checkout, double totalCost) {
+    public UserHistory(int id, String roomNumber, LocalDateTime reservationTime, LocalDateTime checkin, LocalDateTime checkout, double totalCost) {
 		this.userId = id;
 		this.roomNumber = roomNumber;
+		this.reservationTime = reservationTime;
 		this.checkInTime = checkin;
 		this.checkOutTime = checkout;
 		this.totalCost = totalCost;
@@ -40,6 +42,14 @@ public class UserHistory {
     
     public void setRoomNumber(String roomNumber) {
         this.roomNumber = roomNumber;
+    }
+    
+    public LocalDateTime getReservationTime() {
+        return reservationTime;
+    }
+    
+    public void setReservationTime(LocalDateTime reservationTime) {
+        this.reservationTime = reservationTime;
     }
     
     public LocalDateTime getCheckInTime() {
@@ -79,6 +89,7 @@ public class UserHistory {
         return "UserHistory{" +
                 "userId=" + userId +
                 ", roomNumber='" + roomNumber + '\'' +
+                ", reservationTime=" + reservationTime +
                 ", checkInTime=" + checkInTime +
                 ", checkOutTime=" + checkOutTime +
                 ", totalCost=" + totalCost +

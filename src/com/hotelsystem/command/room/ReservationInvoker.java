@@ -1,6 +1,7 @@
 package com.hotelsystem.command.room;
 
 import java.util.Stack;
+import com.hotelsystem.user.User;
 
 /**
  * Invoker for managing reservation commands with undo functionality
@@ -21,9 +22,9 @@ public class ReservationInvoker {
             ReservationCommand command = commandHistory.pop();
             command.undo();
             undoHistory.push(command);
-            System.out.println("Đã hoàn tác lệnh: " + command.getDescription());
+            System.out.println("🔄 Đã hoàn tác lệnh: " + command.getDescription());
         } else {
-            System.out.println("Không có lệnh nào để hoàn tác.");
+            System.out.println("❌ Không có lệnh nào để hoàn tác.");
         }
     }
     
@@ -32,19 +33,39 @@ public class ReservationInvoker {
             ReservationCommand command = undoHistory.pop();
             command.execute();
             commandHistory.push(command);
-            System.out.println("Đã làm lại lệnh: " + command.getDescription());
+            System.out.println("🔄 Đã làm lại lệnh: " + command.getDescription());
         } else {
-            System.out.println("Không có lệnh nào để làm lại.");
+            System.out.println("❌ Không có lệnh nào để làm lại.");
         }
     }
     
     public void showCommandHistory() {
-        System.out.println("=== LỊCH SỬ LỆNH ===");
+        System.out.println("\n=== LỊCH SỬ LỆNH ===");
         if (commandHistory.isEmpty()) {
-            System.out.println("Chưa có lệnh nào được thực hiện.");
+            System.out.println("📝 Chưa có lệnh nào được thực hiện.");
         } else {
+            System.out.println("📋 Danh sách lệnh đã thực hiện:");
             for (int i = 0; i < commandHistory.size(); i++) {
-                System.out.println((i + 1) + ". " + commandHistory.get(i).getDescription());
+                ReservationCommand cmd = commandHistory.get(i);
+                User user = cmd.getUser();
+                String userInfo = user != null ? " - " + user.getName() : "";
+                System.out.println((i + 1) + ". " + cmd.getDescription() + userInfo);
+            }
+        }
+        System.out.println("===================");
+    }
+    
+    public void showUndoHistory() {
+        System.out.println("\n=== LỊCH SỬ HOÀN TÁC ===");
+        if (undoHistory.isEmpty()) {
+            System.out.println("📝 Chưa có lệnh nào được hoàn tác.");
+        } else {
+            System.out.println("📋 Danh sách lệnh đã hoàn tác:");
+            for (int i = 0; i < undoHistory.size(); i++) {
+                ReservationCommand cmd = undoHistory.get(i);
+                User user = cmd.getUser();
+                String userInfo = user != null ? " - " + user.getName() : "";
+                System.out.println((i + 1) + ". " + cmd.getDescription() + userInfo);
             }
         }
         System.out.println("===================");
@@ -53,10 +74,22 @@ public class ReservationInvoker {
     public void clearHistory() {
         commandHistory.clear();
         undoHistory.clear();
-        System.out.println("Đã xóa lịch sử lệnh.");
+        System.out.println("🗑️ Đã xóa lịch sử lệnh.");
     }
     
     public int getCommandCount() {
         return commandHistory.size();
+    }
+    
+    public int getUndoCount() {
+        return undoHistory.size();
+    }
+    
+    public boolean hasCommands() {
+        return !commandHistory.isEmpty();
+    }
+    
+    public boolean hasUndoCommands() {
+        return !undoHistory.isEmpty();
     }
 } 
